@@ -1,0 +1,239 @@
+version: '3.8'
+
+services:
+  # ========================================
+  # PostgreSQL with TimescaleDB
+  # ========================================
+  # 용도: 거래 기록, 사용자 정보, AI 결정 저장
+  # TimescaleDB: 시계열 데이터(OHLCV) 최적화
+  postgres:
+    image: timescale/timescaledb:latest-pg15  # PostgreSQL 15 + TimescaleDB extension
+    container_name: axis-postgres
+    environment:
+      POSTGRES_DB: axis_capital              # 데이터베이스 이름
+      POSTGRES_USER: axis                    # 사용자 이름
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # .env에서 읽어옴
+      PGDATA: /var/lib/postgresql/data/pgdata  # 데이터 저장 경로
+    ports:
+      - "5432:5432"  # 호스트:컨테이너 (로컬에서 5432 포트로 접근)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # 데이터 영구 저장
+    healthcheck:
+      # 헬스체크: PostgreSQL이 준비되었는지 확인
+      test: ["CMD-SHELL", "pg_isready -U axis -d axis_capital"]
+      interval: 10s   # 10초마다 체크
+      timeout: 5s     # 5초 안에 응답 없으면 실패
+      retries: 5      # 5번 실패 시 unhealthy
+    restart: unless-stopped  # 수동 중단 외에는 항상 재시작
+    networks:
+      - axis-network
+
+  # ========================================
+  # Redis
+  # ========================================
+  # 용도: 캐싱(시장 데이터, 요약), Celery Broker, User Lock
+  redis:
+    image: redis:7-alpine  # 경량 Alpine Linux 기반
+    container_name: axis-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    # --appendonly yes: 데이터 영구 저장 (AOF)
+    # --requirepass: 비밀번호 인증 필수
+    ports:
+      - "6379:6379"  # Redis 기본 포트
+    volumes:
+      - redis_data:/data  # AOF 파일 저장
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - axis-network
+
+  # ========================================
+  # n8n Workflow Engine
+  # ========================================
+  # 용도: AI Agents 워크플로우 실행 (CEO, Analyst, Risk Chief)
+  # 접속: http://localhost:5679
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: axis-n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true           # 로그인 인증 활성화
+      - N8N_BASIC_AUTH_USER=${N8N_USER}      # 로그인 ID (.env)
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}  # 로그인 비밀번호
+      - N8N_HOST=0.0.0.0                     # 모든 IP 허용
+      - N8N_PORT=5678                        # 내부 포트
+      - N8N_PROTOCOL=http                    # HTTP 프로토콜
+      - WEBHOOK_URL=http://localhost:5678/   # Webhook URL (Celery가 호출)
+      - GENERIC_TIMEZONE=Asia/Seoul          # 한국 시간대
+    ports:
+      - "5679:5678"  # 호스트 5679 → 컨테이너 5678 (기존 n8n과 충돌 방지)
+    volumes:
+      - n8n_data:/home/node/.n8n                      # n8n 설정 저장
+      - ./n8n_workflows:/home/node/.n8n/workflows     # 워크플로우 파일 동기화
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - axis-network
+    depends_on:
+      postgres:
+        condition: service_healthy  # PostgreSQL이 준비될 때까지 대기
+      redis:
+        condition: service_healthy  # Redis가 준비될 때까지 대기
+
+  # ========================================
+  # FastAPI Backend
+  # ========================================
+  # 용도: REST API, 거래 실행, 데이터 제공
+  # 접속: http://localhost:8001
+  # Swagger: http://localhost:8001/docs
+  fastapi:
+    build:
+      context: ./api        # ./api 디렉토리에서 빌드
+      dockerfile: Dockerfile
+    container_name: axis-fastapi
+    environment:
+      # PostgreSQL 연결 (컨테이너 이름으로 접근)
+      - DATABASE_URL=postgresql://axis:${POSTGRES_PASSWORD}@postgres:5432/axis_capital
+      # Redis 연결 (비밀번호 포함)
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      # 거래소 API (테스트용만, 실제는 DB에서 유저별로 조회)
+      - BINANCE_TESTNET_KEY=${BINANCE_TESTNET_KEY:-optional_testnet_key}
+      - BINANCE_TESTNET_SECRET=${BINANCE_TESTNET_SECRET:-optional_testnet_secret}
+      # AI (OpenAI)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # 보안
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}      # 유저 API Key DB 암호화용 (필수!)
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}      # JWT 토큰 생성용
+    ports:
+      - "8001:8000"  # 호스트 8001 → 컨테이너 8000 (기존 8000과 충돌 방지)
+    volumes:
+      - ./api:/app  # 코드 변경 시 자동 반영 (개발 모드)
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    # --reload: 코드 변경 시 자동 재시작
+    restart: unless-stopped
+    networks:
+      - axis-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ========================================
+  # Celery Worker
+  # ========================================
+  # 용도: 백그라운드 작업 실행
+  # - 데이터 수집 (5분마다)
+  # - 뉴스/소셜 요약 (30분마다)
+  # - Quick Filter (15분마다)
+  # - 포지션 모니터링 (1분마다)
+  celery-worker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: axis-celery-worker
+    environment:
+      - DATABASE_URL=postgresql://axis:${POSTGRES_PASSWORD}@postgres:5432/axis_capital
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0  # Celery Broker
+      # 거래소 API는 DB에서 유저별로 조회 (암호화되어 저장됨)
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}      # DB에서 API Key 복호화용
+      - BINANCE_TESTNET_KEY=${BINANCE_TESTNET_KEY:-}  # 시스템 레벨 테스트용 (optional)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}  # GPT-4o-mini 요약용
+    volumes:
+      - ./api:/app
+    command: celery -A workers.celery_app worker -l info
+    # worker: Task 실행 담당
+    # -l info: 로그 레벨 INFO
+    restart: unless-stopped
+    networks:
+      - axis-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ========================================
+  # Celery Beat (Scheduler)
+  # ========================================
+  # 용도: 스케줄러 (Cron처럼 정해진 시간에 Task 트리거)
+  # - 5분마다: collect_market_data
+  # - 15분마다: quick_filter_and_trigger
+  # - 30분마다: collect_and_summarize_news, analyze_social
+  # - 매일 00:00: analyze_past_decisions
+  celery-beat:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: axis-celery-beat
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0  # 스케줄 정보 저장
+    volumes:
+      - ./api:/app
+    command: celery -A workers.celery_app beat -l info
+    # beat: 스케줄러 (Worker에게 Task 전달)
+    restart: unless-stopped
+    networks:
+      - axis-network
+    depends_on:
+      - redis  # Redis만 있으면 실행 가능
+
+  # ========================================
+  # Grafana (Monitoring Dashboard)
+  # ========================================
+  # 용도: 실시간 모니터링 대시보드
+  # - 포트폴리오 현황
+  # - 성과 차트 (일/주/월)
+  # - AI Agent 성능
+  # - 시스템 헬스
+  # 접속: http://localhost:3001
+  grafana:
+    image: grafana/grafana:latest
+    container_name: axis-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}      # 로그인 ID
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}  # 로그인 비밀번호
+      - GF_INSTALL_PLUGINS=redis-datasource         # Redis 플러그인 자동 설치
+    ports:
+      - "3001:3000"  # 호스트 3001 → 컨테이너 3000
+    volumes:
+      - grafana_data:/var/lib/grafana  # Grafana 설정 저장
+      # 대시보드와 데이터소스 자동 프로비저닝 (나중에 설정)
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    networks:
+      - axis-network
+    depends_on:
+      - postgres  # PostgreSQL 데이터 조회용
+
+# ========================================
+# Volumes (데이터 영구 저장)
+# ========================================
+# 컨테이너 삭제 시에도 데이터 유지
+volumes:
+  postgres_data:
+    driver: local  # 로컬 디스크에 저장
+  redis_data:
+    driver: local
+  n8n_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ========================================
+# Networks (컨테이너 간 통신)
+# ========================================
+# 모든 컨테이너가 같은 네트워크에서 서로 통신 가능
+# 예: fastapi → postgres:5432, celery → redis:6379
+networks:
+  axis-network:
+    driver: bridge  # Docker 기본 네트워크 드라이버
+

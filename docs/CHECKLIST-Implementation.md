@@ -83,51 +83,60 @@ Step 2:
 **⚠️ 각 작업 완료 후 Owner 승인 필수**
 
 #### Infrastructure
-- [ ] **Task 1.1: 서버 준비**
-  - [ ] Ubuntu 22.04 LTS 설치
-  - [ ] Docker 설치 및 설정
-  - [ ] Docker Compose 설치
+- [x] **Task 1.1: 서버 준비** ✅
+  - [x] Ubuntu 22.04 LTS 설치 (macOS 환경 확인)
+  - [x] Docker 설치 및 설정
+  - [x] Docker Compose 설치 (v2 확인)
 
   **완료 보고**:
   ```
   ✅ 완료: 서버 기본 환경
-  📝 내용: Ubuntu 22.04 + Docker + Docker Compose
-  🧪 테스트: docker --version, docker-compose --version
+  📝 내용: macOS + Docker Desktop + docker compose (v2)
+  🧪 테스트: docker compose ps 정상 작동
   ❓ 다음 단계 진행?
   ```
-  **👤 Owner 승인 대기** ⏸️
+  **👤 Owner 승인 완료** ✓
 
-- [ ] **Task 1.2: 방화벽 설정**
-  - [ ] 방화벽 설정 (포트 8000, 5678, 3000)
-  - [ ] SSL 인증서 발급 (Let's Encrypt)
+- [x] **Task 1.2: 방화벽 설정** ⏭️ (로컬 개발 환경으로 SKIP)
+  - [ ] 방화벽 설정 (포트 8000, 5678, 3000) - 프로덕션 배포 시 필요
+  - [ ] SSL 인증서 발급 (Let's Encrypt) - 프로덕션 배포 시 필요
 
-  **완료 보고 후 승인 대기** ⏸️
+  **로컬 개발 환경이므로 SKIP**
 
-- [ ] **Task 1.3: Docker Compose 설정**
-  - [ ] `docker-compose.yml` 작성
-  - [ ] PostgreSQL 컨테이너 설정
-  - [ ] Redis 컨테이너 설정
-  - [ ] TimescaleDB extension 활성화
-  - [ ] 환경변수 파일 `.env` 작성
-  - [ ] 볼륨 매핑 확인
+- [x] **Task 1.3: Docker Compose 설정** ✅
+  - [x] `docker-compose.yml` 작성
+  - [x] PostgreSQL 컨테이너 설정
+  - [x] Redis 컨테이너 설정
+  - [x] n8n 컨테이너 설정
+  - [x] TimescaleDB extension 활성화
+  - [x] 환경변수 파일 `.env` 작성
+  - [x] 볼륨 매핑 확인
+  - [x] Healthcheck 설정
 
   **완료 보고**:
   ```
   ✅ 완료: Docker Compose 설정
-  📝 내용: PostgreSQL, Redis, n8n 컨테이너 설정
-  🧪 테스트: docker-compose up -d 성공, 모든 컨테이너 RUNNING
-  📂 파일: docker-compose.yml, .env
+  📝 내용: PostgreSQL, Redis, n8n 컨테이너 설정 (한글 주석 포함)
+  🧪 테스트: docker compose up -d 성공, 모든 컨테이너 RUNNING
+  📂 파일: docker-compose.yml, .env, .env.example, API-KEY-MANAGEMENT.md
   ❓ 다음 단계 진행?
   ```
-  **👤 Owner 승인 대기** ⏸️
+  **👤 Owner 승인 완료** ✓
 
-- [ ] **Task 1.4: Database 초기화**
-  - [ ] PostgreSQL 연결 테스트
-  - [ ] TimescaleDB extension 설치
-  - [ ] 데이터베이스 생성 (`axis_capital`)
-  - [ ] 사용자 생성 및 권한 설정
+- [x] **Task 1.4: Database 초기화** ✅
+  - [x] PostgreSQL 연결 테스트
+  - [x] TimescaleDB extension 설치
+  - [x] 데이터베이스 생성 (`axis_capital`)
+  - [x] Redis 연결 테스트 (PONG 확인)
 
-  **완료 보고 후 승인 대기** ⏸️
+  **완료 보고**:
+  ```
+  ✅ 완료: Database 초기화
+  📝 내용: PostgreSQL + TimescaleDB, Redis 정상 실행
+  🧪 테스트: TimescaleDB extension 설치 완료, Redis PONG 응답
+  ❓ 다음 단계 진행?
+  ```
+  **👤 Owner 승인 완료** ✓
 
 #### 테스트 & 승인 요청
 
