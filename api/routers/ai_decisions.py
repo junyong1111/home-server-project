@@ -5,11 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from api.core.database import get_db
-from api.models.user import User
-from api.routers.users import get_current_user
-from api.models.ai_decision import AIDecision, RegimeHistory
-from api.schemas.ai_decision import (
+from core.database import get_db
+from models.user import User
+from routers.users import get_current_user
+from models.ai_decision import AIDecision, RegimeHistory
+from schemas.ai_decision import (
     AIDecisionCreate,
     AIDecisionResponse,
     RegimeHistoryCreate,

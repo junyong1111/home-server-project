@@ -2,12 +2,13 @@
 Market Data Models (TimescaleDB)
 """
 from sqlalchemy import Column, String, Integer, DECIMAL, TIMESTAMP, PrimaryKeyConstraint
-from api.core.database import Base
+from core.database import Base
 
 
 class MarketData(Base):
     """시장 데이터 (OHLCV) - TimescaleDB Hypertable"""
     __tablename__ = "market_data"
+    __table_args__ = {"extend_existing": True}
 
     time = Column(TIMESTAMP(timezone=True), nullable=False)
     exchange = Column(String(20), nullable=False)
@@ -28,6 +29,7 @@ class MarketData(Base):
 class PortfolioSnapshot(Base):
     """포트폴리오 스냅샷 - TimescaleDB Hypertable"""
     __tablename__ = "portfolio_snapshots"
+    __table_args__ = {"extend_existing": True}
 
     time = Column(TIMESTAMP(timezone=True), nullable=False)
     user_id = Column(Integer, nullable=False)
@@ -52,6 +54,7 @@ class PortfolioSnapshot(Base):
 class FundingRateHistory(Base):
     """Funding Rate 히스토리 - TimescaleDB Hypertable"""
     __tablename__ = "funding_rate_history"
+    __table_args__ = {"extend_existing": True}
 
     time = Column(TIMESTAMP(timezone=True), nullable=False)
     exchange = Column(String(20), nullable=False)

@@ -3,12 +3,13 @@ AI Decision Models
 """
 from sqlalchemy import Column, Integer, String, DECIMAL, Text, TIMESTAMP, ForeignKey, JSON
 from sqlalchemy.sql import func
-from api.core.database import Base
+from core.database import Base
 
 
 class AIDecision(Base):
     """AI 의사결정 기록"""
     __tablename__ = "ai_decisions"
+    __table_args__ = {"extend_existing": True}
 
     decision_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
@@ -49,6 +50,7 @@ class AIDecision(Base):
 class RegimeHistory(Base):
     """시장 레짐 변경 이력"""
     __tablename__ = "regime_history"
+    __table_args__ = {"extend_existing": True}
 
     regime_id = Column(Integer, primary_key=True, index=True)
     timestamp = Column(TIMESTAMP, nullable=False, server_default=func.now())

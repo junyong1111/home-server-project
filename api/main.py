@@ -6,9 +6,9 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from api.core.config import settings
-from api.core.database import Base, engine, check_database_connection
-from api.core.redis_client import check_redis_connection
+from core.config import settings
+from core.database import Base, engine, check_database_connection
+from core.redis_client import check_redis_connection
 from routers import auth, users, ai_decisions, market_data, trading, news
 
 

@@ -6,8 +6,8 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from decimal import Decimal
 
-from api.core.security import decrypt_api_key
-from api.models.user import User
+from core.security import decrypt_api_key
+from models.user import User
 
 
 class BinanceService:

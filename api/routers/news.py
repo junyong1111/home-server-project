@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Redis 캐싱용
-from api.core.redis_client import get_redis_client
+from core.redis_client import get_redis_client
 
 router = APIRouter(prefix="/api/v1/news", tags=["News"])
 

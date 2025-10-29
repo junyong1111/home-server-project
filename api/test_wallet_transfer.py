@@ -3,9 +3,9 @@
 """
 import asyncio
 from sqlalchemy.orm import Session
-from api.core.database import get_db
-from api.models.user import User
-from api.services.binance_service import BinanceService
+from core.database import get_db
+from models.user import User
+from services.binance_service import BinanceService
 
 
 async def test_wallet_transfer():

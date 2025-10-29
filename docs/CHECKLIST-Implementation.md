@@ -595,38 +595,53 @@ redis-cli ping  # PONG 응답 확인
 ### Phase 3: Backend Services (FastAPI, Celery)
 
 #### FastAPI 기본 구조
-- [ ] **프로젝트 구조 생성**
+- [x] **프로젝트 구조 생성** ✅
   ```
   api/
   ├── main.py
-  ├── requirements.txt
+  ├── pyproject.toml (uv 패키지 관리)
   ├── routers/
   ├── services/
   ├── models/
   └── core/
   ```
-  - [ ] `main.py` FastAPI 앱 초기화
-  - [ ] `requirements.txt` 작성
-  - [ ] `core/config.py` 설정 파일
-  - [ ] `core/database.py` DB 연결
-  - [ ] `core/redis_client.py` Redis 연결
+  - [x] `main.py` FastAPI 앱 초기화
+  - [x] `pyproject.toml` 작성 (uv 사용)
+  - [x] `core/config.py` 설정 파일
+  - [x] `core/database.py` DB 연결
+  - [x] `core/redis_client.py` Redis 연결
 
-- [ ] **Health Check API**
-  - [ ] `GET /health` 엔드포인트
-  - [ ] Database 연결 확인
-  - [ ] Redis 연결 확인
-  - [ ] 응답 시간 < 500ms 확인
+- [x] **Health Check API** ✅
+  - [x] `GET /health` 엔드포인트
+  - [x] Database 연결 확인
+  - [x] Redis 연결 확인
+  - [x] 응답 시간 < 500ms 확인
+
+  **완료 보고**:
+  ```
+  ✅ 완료: FastAPI 기본 인프라
+  📝 내용:
+    - FastAPI Health Check 정상 작동
+    - Database & Redis 연결 성공
+    - Python 3.12, uv 패키지 관리
+    - Docker Compose 통합
+  🧪 테스트 결과:
+    - ✅ GET /health: 정상 응답
+    - ✅ Database: connected
+    - ✅ Redis: connected
+    - ✅ Version: 1.0.0
+  📂 포트: http://localhost:8001
+  ```
+  **👤 Owner 승인 완료** ✓
 
 #### 테스트
 ```bash
-# FastAPI 실행
-cd api
-pip install -r requirements.txt
-uvicorn main:app --reload
+# Docker Compose 실행
+docker compose up -d
 
 # Health Check
-curl http://localhost:8000/health
-# Expected: {"status": "healthy", "database": "ok", "redis": "ok"}
+curl http://localhost:8001/health
+# Expected: {"status": "healthy", "database": "connected", "redis": "connected", "version": "1.0.0"}
 ```
 
 ---
@@ -751,16 +766,32 @@ def test_open_position():
 ### Celery Setup
 
 #### Celery 구성
-- [ ] **Celery App 설정**
-  - [ ] `workers/celery_app.py` 작성
-  - [ ] Redis Broker 설정
-  - [ ] Result Backend 설정
-  - [ ] Task 자동 발견 설정
+- [x] **Celery App 설정** ✅
+  - [x] `workers/celery_app.py` 작성
+  - [x] Redis Broker 설정
+  - [x] Result Backend 설정
+  - [x] Task 자동 발견 설정
 
-- [ ] **Celery Beat 스케줄 (3-Layer)**
-  - [ ] `workers/scheduler.py` 작성
+  **완료 보고**:
+  ```
+  ✅ 완료: Celery Worker & Beat 정상 작동
+  📝 내용:
+    - Celery App 초기화
+    - Redis Broker 연결
+    - Docker Compose 통합
+    - 뉴스 수집 태스크 구현
+  🧪 테스트 결과:
+    - ✅ Celery Worker: 온라인
+    - ✅ Celery Beat: 실행 중
+    - ✅ Task 자동 발견 작동
+  📂 컨테이너: axis-celery-worker, axis-celery-beat
+  ```
+  **👤 Owner 승인 완료** ✓
+
+- [x] **Celery Beat 스케줄 (3-Layer)** ✅ (부분 완료)
+  - [x] `workers/config.py` 작성
+  - [x] Layer 2: Medium-Frequency (뉴스 수집)
   - [ ] Layer 1: High-Frequency (5분)
-  - [ ] Layer 2: Medium-Frequency (30분)
   - [ ] Layer 3: Event-Driven (수동 트리거)
   - [ ] Quick Filter (15분)
   - [ ] Backtesting (매일 00:00)

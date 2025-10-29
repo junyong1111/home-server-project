@@ -98,6 +98,8 @@ services:
       context: ./api        # ./api 디렉토리에서 빌드
       dockerfile: Dockerfile
     container_name: axis-fastapi
+    env_file:
+      - .env
     environment:
       # PostgreSQL 연결 (컨테이너 이름으로 접근)
       - DATABASE_URL=postgresql://axis:${POSTGRES_PASSWORD}@postgres:5432/axis_capital
@@ -111,12 +113,20 @@ services:
       # 보안
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}      # 유저 API Key DB 암호화용 (필수!)
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}      # JWT 토큰 생성용
+      # Python Path (workers, api 모듈 접근용)
+      - PYTHONPATH=/workspace
     ports:
       - "8001:8000"  # 호스트 8001 → 컨테이너 8000 (기존 8000과 충돌 방지)
     volumes:
-      - ./api:/app  # 코드 변경 시 자동 반영 (개발 모드)
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      - .:/workspace  # 프로젝트 루트를 /workspace에 마운트
+    working_dir: /workspace/api
+    command: uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     # --reload: 코드 변경 시 자동 재시작
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks:
       - axis-network
@@ -143,7 +153,7 @@ services:
       - "8501:8501"
     volumes:
       - ./streamlit_app:/app  # 코드 변경 시 자동 반영
-    command: streamlit run Home.py --server.port=8501 --server.address=0.0.0.0
+    command: uv run streamlit run Home.py --server.port=8501 --server.address=0.0.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501"]
       interval: 30s

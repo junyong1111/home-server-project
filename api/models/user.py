@@ -5,13 +5,14 @@ SQLAlchemy User 모델
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 from sqlalchemy.orm import relationship
 
-from api.core.database import Base
+from core.database import Base
 
 
 class User(Base):
     """사용자 모델"""
 
     __tablename__ = "users"
+    __table_args__ = {"extend_existing": True}
 
     # ===== Primary Key =====
     user_id = Column(Integer, primary_key=True, index=True)

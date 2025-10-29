@@ -6,12 +6,12 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 
-from api.core.database import get_db
-from api.models.user import User
-from api.models.market_data import MarketData
-from api.routers.users import get_current_user
-from api.services.binance_service import BinanceService
-from api.schemas.market_data import (
+from core.database import get_db
+from models.user import User
+from models.market_data import MarketData
+from routers.users import get_current_user
+from services.binance_service import BinanceService
+from schemas.market_data import (
     WalletBalances,
     AssetBalance,
     TransferRequest,

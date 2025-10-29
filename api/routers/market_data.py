@@ -6,11 +6,11 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, timedelta
 
-from api.core.database import get_db
-from api.models.market_data import MarketData, PortfolioSnapshot
-from api.models.user import User
-from api.routers.users import get_current_user
-from api.schemas.market_data import MarketDataResponse, PortfolioSnapshotResponse
+from core.database import get_db
+from models.market_data import MarketData, PortfolioSnapshot
+from models.user import User
+from routers.users import get_current_user
+from schemas.market_data import MarketDataResponse, PortfolioSnapshotResponse
 
 router = APIRouter(prefix="/api/v1/market", tags=["Market Data"])
 
