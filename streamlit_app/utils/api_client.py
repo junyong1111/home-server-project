@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any
 class APIClient:
     """FastAPI 백엔드 API 클라이언트"""
 
-    def __init__(self, base_url: str = "http://localhost:7000"):
+    def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.token: Optional[str] = None
 
@@ -402,7 +402,7 @@ class APIClient:
     def get_crypto_news(self) -> Dict[str, Any]:
         """
         암호화폐 뉴스 조회
-        
+
         Returns:
             dict: 성공 시 뉴스 목록, 실패 시 에러
         """
@@ -421,7 +421,7 @@ class APIClient:
     def get_social_sentiment(self) -> Dict[str, Any]:
         """
         소셜 감성 분석 조회
-        
+
         Returns:
             dict: 성공 시 감성 분석 데이터, 실패 시 에러
         """
@@ -440,7 +440,7 @@ class APIClient:
     def refresh_news(self) -> Dict[str, Any]:
         """
         뉴스 데이터 강제 새로고침
-        
+
         Returns:
             dict: 성공 시 새로고침 결과, 실패 시 에러
         """
