@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 
-from models.user import User
-from schemas.user import UserCreate, UserUpdate, UserUpdateAPIKeys
-from core.security import (
+from api.models.user import User
+from api.schemas.user import UserCreate, UserUpdate, UserUpdateAPIKeys
+from api.core.security import (
     hash_password,
     verify_password,
     encrypt_api_key,

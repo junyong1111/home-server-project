@@ -19,13 +19,13 @@ if "api_client" not in st.session_state:
     st.session_state.api_client = APIClient()
 
 # 인증 확인
-if not st.session_state.get("token"):
+if not st.session_state.get("access_token"):
     st.warning("로그인이 필요합니다.")
     if st.button("로그인하러 가기"):
         st.switch_page("pages/2_로그인.py")
     st.stop()
 
-st.session_state.api_client.set_token(st.session_state.token)
+st.session_state.api_client.set_token(st.session_state.access_token)
 
 # 커스텀 CSS
 st.markdown("""
@@ -44,7 +44,7 @@ if not result["success"]:
     st.error(f"데이터 로드 실패: {result['error']}")
     if "token" in result['error'].lower():
         if st.button("로그아웃 후 다시 로그인"):
-            st.session_state.token = None
+            st.session_state.access_token = None
             st.session_state.user_info = None
             st.session_state.api_client.set_token(None)
             st.switch_page("pages/2_로그인.py")
@@ -270,7 +270,7 @@ action_col1, action_col2 = st.columns([3, 1])
 
 with action_col2:
     if st.button("로그아웃", use_container_width=True):
-        st.session_state.token = None
+        st.session_state.access_token = None
         st.session_state.user_info = None
         st.session_state.api_client.set_token(None)
         st.switch_page("Home.py")

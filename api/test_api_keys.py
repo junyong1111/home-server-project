@@ -3,9 +3,9 @@ API 키 복호화 테스트
 """
 import sys
 from sqlalchemy.orm import Session
-from core.database import SessionLocal
-from core.security import decrypt_api_key
-from models.user import User
+from api.core.database import SessionLocal
+from api.core.security import decrypt_api_key
+from api.models.user import User
 
 def test_api_keys():
     """devjun API 키 복호화 테스트"""

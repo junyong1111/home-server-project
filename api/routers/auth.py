@@ -5,11 +5,11 @@ AXIS Capital - Auth Router
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from core.database import get_db
-from core.security import create_access_token
-from schemas.auth import LoginRequest, TokenResponse
-from schemas.user import UserCreate, UserResponse
-from services.user_service import UserService
+from api.core.database import get_db
+from api.core.security import create_access_token
+from api.schemas.auth import LoginRequest, TokenResponse
+from api.schemas.user import UserCreate, UserResponse
+from api.services.user_service import UserService
 
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])

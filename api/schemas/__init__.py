@@ -1,7 +1,7 @@
 """
 AXIS Capital - Schemas Module
 """
-from schemas.user import (
+from .user import (
     UserBase,
     UserCreate,
     UserUpdate,
@@ -9,7 +9,7 @@ from schemas.user import (
     UserResponse,
     UserMe,
 )
-from schemas.auth import (
+from .auth import (
     LoginRequest,
     TokenResponse,
     TokenData,

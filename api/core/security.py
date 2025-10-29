@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from cryptography.fernet import Fernet
 
-from core.config import settings
+from .config import settings
 
 
 # ===== 비밀번호 해싱 =====

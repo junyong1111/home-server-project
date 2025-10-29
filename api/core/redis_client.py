@@ -5,7 +5,7 @@ Redis 연결 및 캐싱
 import redis
 from typing import Optional
 
-from core.config import settings
+from .config import settings
 
 
 # ===== Redis Client =====

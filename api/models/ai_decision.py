@@ -3,7 +3,7 @@ AI Decision Models
 """
 from sqlalchemy import Column, Integer, String, DECIMAL, Text, TIMESTAMP, ForeignKey, JSON
 from sqlalchemy.sql import func
-from core.database import Base
+from api.core.database import Base
 
 
 class AIDecision(Base):

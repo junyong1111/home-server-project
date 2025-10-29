@@ -2,7 +2,7 @@
 Market Data Models (TimescaleDB)
 """
 from sqlalchemy import Column, String, Integer, DECIMAL, TIMESTAMP, PrimaryKeyConstraint
-from core.database import Base
+from api.core.database import Base
 
 
 class MarketData(Base):
@@ -46,5 +46,22 @@ class PortfolioSnapshot(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint('time', 'user_id'),
+    )
+
+
+class FundingRateHistory(Base):
+    """Funding Rate 히스토리 - TimescaleDB Hypertable"""
+    __tablename__ = "funding_rate_history"
+
+    time = Column(TIMESTAMP(timezone=True), nullable=False)
+    exchange = Column(String(20), nullable=False)
+    symbol = Column(String(20), nullable=False)
+
+    funding_rate = Column(DECIMAL(10, 8), nullable=False)
+    mark_price = Column(DECIMAL(20, 8), nullable=False)
+    index_price = Column(DECIMAL(20, 8), nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('time', 'exchange', 'symbol'),
     )
 

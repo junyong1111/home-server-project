@@ -17,7 +17,7 @@ if "api_client" not in st.session_state:
     st.session_state.api_client = APIClient()
 
 # 인증 확인
-if not st.session_state.get("token"):
+if not st.session_state.get("access_token"):
     st.warning("로그인이 필요합니다.")
     if st.button("로그인하러 가기"):
         st.switch_page("pages/2_로그인.py")

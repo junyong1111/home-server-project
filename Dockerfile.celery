@@ -1,0 +1,37 @@
+# Celery Worker & Beat Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 시스템 의존성 설치
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 의존성 설치 (FastAPI와 동일한 의존성 사용)
+COPY api/pyproject.toml api/pyproject.toml
+RUN pip install --no-cache-dir -e api/
+
+# Celery 및 추가 의존성 설치
+RUN pip install --no-cache-dir \
+    celery \
+    redis \
+    ccxt \
+    requests \
+    praw \
+    feedparser
+
+# 프로젝트 파일 복사
+COPY api/ api/
+COPY workers/ workers/
+
+# 작업 디렉토리를 프로젝트 루트로 설정
+WORKDIR /app
+
+# PYTHONPATH 설정
+ENV PYTHONPATH=/app:/app/api
+
+# Celery 실행 (command는 docker-compose에서 오버라이드)
+CMD ["celery", "-A", "workers.celery_app", "worker", "--loglevel=info"]
+

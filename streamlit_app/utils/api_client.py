@@ -398,3 +398,60 @@ class APIClient:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
+    # ===== 뉴스 & 소셜 감성 =====
+    def get_crypto_news(self) -> Dict[str, Any]:
+        """
+        암호화폐 뉴스 조회
+        
+        Returns:
+            dict: 성공 시 뉴스 목록, 실패 시 에러
+        """
+        try:
+            response = requests.get(
+                f"{self.base_url}/api/v1/news/crypto",
+                timeout=30
+            )
+            response.raise_for_status()
+            return {"success": True, "data": response.json()}
+        except requests.exceptions.HTTPError as e:
+            return {"success": False, "error": e.response.json().get("detail", str(e))}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def get_social_sentiment(self) -> Dict[str, Any]:
+        """
+        소셜 감성 분석 조회
+        
+        Returns:
+            dict: 성공 시 감성 분석 데이터, 실패 시 에러
+        """
+        try:
+            response = requests.get(
+                f"{self.base_url}/api/v1/news/social",
+                timeout=30
+            )
+            response.raise_for_status()
+            return {"success": True, "data": response.json()}
+        except requests.exceptions.HTTPError as e:
+            return {"success": False, "error": e.response.json().get("detail", str(e))}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def refresh_news(self) -> Dict[str, Any]:
+        """
+        뉴스 데이터 강제 새로고침
+        
+        Returns:
+            dict: 성공 시 새로고침 결과, 실패 시 에러
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/v1/news/refresh",
+                timeout=10
+            )
+            response.raise_for_status()
+            return {"success": True, "data": response.json()}
+        except requests.exceptions.HTTPError as e:
+            return {"success": False, "error": e.response.json().get("detail", str(e))}
+        except Exception as e:
+            return {"success": False, "error": str(e)}

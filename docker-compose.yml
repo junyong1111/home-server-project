@@ -166,21 +166,31 @@ services:
   # - 포지션 모니터링 (1분마다)
   celery-worker:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.celery
     container_name: axis-celery-worker
     environment:
       - DATABASE_URL=postgresql://axis:${POSTGRES_PASSWORD}@postgres:5432/axis_capital
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0  # Celery Broker
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=0
       # 거래소 API는 DB에서 유저별로 조회 (암호화되어 저장됨)
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}      # DB에서 API Key 복호화용
       - BINANCE_TESTNET_KEY=${BINANCE_TESTNET_KEY:-}  # 시스템 레벨 테스트용 (optional)
       - OPENAI_API_KEY=${OPENAI_API_KEY}  # GPT-4o-mini 요약용
+      # 뉴스 & 소셜 API 키들
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY:-}
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID:-}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GOOGLE_SEARCH_ENGINE_ID=${GOOGLE_SEARCH_ENGINE_ID:-}
     volumes:
-      - ./api:/app
-    command: celery -A workers.celery_app worker -l info
+      - .:/app  # 프로젝트 루트 전체 마운트
+    command: celery -A workers.celery_app worker --loglevel=info --concurrency=2
     # worker: Task 실행 담당
-    # -l info: 로그 레벨 INFO
+    # --loglevel=info: 로그 레벨 INFO
+    # --concurrency=2: 동시 실행 워커 2개
     restart: unless-stopped
     networks:
       - axis-network
@@ -200,20 +210,24 @@ services:
   # - 매일 00:00: analyze_past_decisions
   celery-beat:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.celery
     container_name: axis-celery-beat
     environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0  # 스케줄 정보 저장
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=0
     volumes:
-      - ./api:/app
-    command: celery -A workers.celery_app beat -l info
+      - .:/app  # 프로젝트 루트 전체 마운트
+    command: celery -A workers.celery_app beat --loglevel=info
     # beat: 스케줄러 (Worker에게 Task 전달)
     restart: unless-stopped
     networks:
       - axis-network
     depends_on:
-      - redis  # Redis만 있으면 실행 가능
+      redis:
+        condition: service_healthy
 
   # ========================================
   # Grafana (Monitoring Dashboard)

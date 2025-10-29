@@ -6,10 +6,10 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from core.config import settings
-from core.database import Base, engine, check_database_connection
-from core.redis_client import check_redis_connection
-from routers import auth, users, ai_decisions, market_data, trading
+from api.core.config import settings
+from api.core.database import Base, engine, check_database_connection
+from api.core.redis_client import check_redis_connection
+from routers import auth, users, ai_decisions, market_data, trading, news
 
 
 # ===== FastAPI App =====
@@ -38,6 +38,7 @@ app.include_router(users.router)
 app.include_router(ai_decisions.router)
 app.include_router(market_data.router)
 app.include_router(trading.router)
+app.include_router(news.router)
 
 
 # ===== Startup Event =====

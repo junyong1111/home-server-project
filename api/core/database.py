@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from typing import Generator
 
-from core.config import settings
+from .config import settings
 
 
 # ===== SQLAlchemy Engine =====

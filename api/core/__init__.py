@@ -1,10 +1,10 @@
 """
 AXIS Capital - Core Module
 """
-from core.config import settings
-from core.database import get_db, check_database_connection
-from core.redis_client import get_redis_client, check_redis_connection
-from core.security import (
+from .config import settings
+from .database import get_db, check_database_connection
+from .redis_client import get_redis_client, check_redis_connection
+from .security import (
     hash_password,
     verify_password,
     create_access_token,
