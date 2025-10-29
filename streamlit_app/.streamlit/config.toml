@@ -1,0 +1,15 @@
+[theme]
+# 프로페셔널한 트레이딩 테마
+primaryColor = "#00D9FF"       # 시안 - 강조 포인트
+backgroundColor = "#0E1117"    # 다크 배경
+secondaryBackgroundColor = "#1A1D24"  # 카드 배경
+textColor = "#FAFAFA"          # 텍스트 (흰색에 가까움)
+font = "sans serif"
+
+[server]
+headless = true
+port = 8501
+address = "0.0.0.0"
+
+[browser]
+gatherUsageStats = false

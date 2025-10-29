@@ -131,6 +131,150 @@ Task Categories:
      - check_regime_change (1시간)
 ```
 
+### 2.4 Web UI (Streamlit)
+
+```yaml
+Version: Streamlit 1.30+
+Port: 8501
+Deployment: Docker container
+Theme: Dark mode (custom)
+
+Dependencies:
+  - streamlit >= 1.30.0
+  - requests >= 2.31.0       # FastAPI 통신
+  - altair >= 5.0.0          # 차트 렌더링
+  - pandas >= 2.0.0          # 데이터 처리
+  - python-jose >= 3.3.0     # JWT 디코딩
+
+Directory Structure:
+  streamlit_app/
+  ├── Home.py                 # 메인 페이지 (엔트리포인트)
+  ├── .streamlit/
+  │   └── config.toml         # 테마 설정
+  ├── pages/
+  │   ├── 1_회원가입.py
+  │   ├── 2_로그인.py
+  │   ├── 3_대시보드.py
+  │   └── 4_API키관리.py
+  ├── utils/
+  │   ├── __init__.py
+  │   └── api_client.py       # FastAPI 클라이언트
+  ├── pyproject.toml          # uv 패키지 관리
+  └── Dockerfile
+
+API Integration:
+  - Base URL: http://fastapi:8000 (Docker) or http://localhost:7000 (Local)
+  - Authentication: JWT (Bearer Token)
+  - Session Management: st.session_state
+  - Token Storage: In-memory (24h validity)
+
+Key Features:
+  1. User Registration
+     - Form validation (client-side)
+     - API key encryption confirmation
+     - Risk profile selection
+
+  2. Authentication
+     - JWT-based login
+     - Automatic token refresh (future)
+     - Session persistence
+
+  3. Dashboard
+     - Real-time metrics (P&L, Win Rate, etc.)
+     - Altair charts (portfolio value, daily P&L)
+     - Position monitoring
+     - Account overview
+
+  4. API Key Management
+     - Masked display (last 6 chars)
+     - Secure update form
+     - Binance guide
+
+Security:
+  - No API keys stored in browser
+  - JWT tokens in session state only
+  - All sensitive data masked
+  - HTTPS recommended for production
+
+Performance:
+  - Lazy loading for charts
+  - Cached API calls (st.cache_data)
+  - Async data fetching (future)
+```
+
+**API Client Implementation** (`utils/api_client.py`):
+```python
+class APIClient:
+    def __init__(self, base_url="http://localhost:7000"):
+        self.base_url = base_url
+        self.token = None
+
+    def set_token(self, token):
+        self.token = token
+
+    def _get_headers(self):
+        headers = {"Content-Type": "application/json"}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+        return headers
+
+    def health_check(self) -> dict:
+        # GET /health
+
+    def register(self, username, email, password,
+                 binance_api_key, binance_api_secret,
+                 risk_profile) -> dict:
+        # POST /auth/register
+
+    def login(self, username, password) -> dict:
+        # POST /auth/login
+
+    def get_me(self) -> dict:
+        # GET /users/me
+
+    def update_api_keys(self, binance_api_key,
+                        binance_api_secret) -> dict:
+        # PUT /users/me/api-keys
+```
+
+**Theme Configuration** (`.streamlit/config.toml`):
+```toml
+[theme]
+primaryColor = "#00D9FF"              # Cyan (강조)
+backgroundColor = "#0E1117"           # Dark background
+secondaryBackgroundColor = "#1A1D24"  # Card background
+textColor = "#FAFAFA"                 # High contrast text
+font = "sans serif"
+
+[server]
+headless = true
+port = 8501
+address = "0.0.0.0"
+```
+
+**Deployment**:
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Install dependencies
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-cache
+
+# Copy application
+COPY . .
+
+# Expose port
+EXPOSE 8501
+
+# Run Streamlit
+CMD ["uv", "run", "streamlit", "run", "Home.py",
+     "--server.port=8501", "--server.address=0.0.0.0"]
+```
+
 ---
 
 ## 3. Database Schema

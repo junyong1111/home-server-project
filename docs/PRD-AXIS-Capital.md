@@ -832,6 +832,98 @@ CRITICAL (즉시 + SMS):
   - API 연결 실패
 ```
 
+### 7.3 Streamlit Web UI
+
+**Purpose**: 사용자 친화적인 웹 기반 관리 인터페이스
+
+**Core Pages**:
+```
+1. 홈 (Home)
+   - 시스템 상태 개요
+   - 빠른 시작 (회원가입/로그인)
+   - 기술 스택 소개
+
+2. 회원가입 (Registration)
+   - 계정 정보 (사용자명, 이메일, 비밀번호)
+   - Binance API 인증 정보 입력
+   - 리스크 프로필 선택 (Conservative/Balanced/Aggressive)
+
+3. 로그인 (Login)
+   - JWT 기반 인증
+   - 24시간 세션 유지
+   - 자동 로그아웃 처리
+
+4. 대시보드 (Dashboard)
+   - 계정 개요 (사용자명, 상태, 리스크 프로필)
+   - 트레이딩 성과 메트릭 (총 손익, 보유 포지션, 승률, 거래 수)
+   - 포트폴리오 가치 차트 (시계열)
+   - 일일 손익 차트 (막대 그래프)
+   - 최근 포지션 목록
+   - API 설정 현황
+
+5. API 키 관리 (API Key Management)
+   - 현재 API 키 확인 (마스킹)
+   - API 키 업데이트
+   - Binance API 발급 가이드
+   - 보안 팁 제공
+```
+
+**Design Principles**:
+```
+✅ Minimal & Professional
+   - 불필요한 이모지 최소화
+   - 깔끔한 타이포그래피
+   - 금융 플랫폼 느낌
+
+✅ Trading-Focused
+   - 다크 테마 기본
+   - 고대비 컬러 스킴 (#00D9FF Cyan)
+   - 차트 중심 레이아웃
+
+✅ Data Visualization
+   - Altair 기반 인터랙티브 차트
+   - 실시간 메트릭 업데이트
+   - 그래프를 통한 직관적 정보 전달
+
+✅ Security-First
+   - API 키 암호화 저장
+   - JWT 인증
+   - 마스킹 처리된 민감 정보 표시
+```
+
+**User Stories**:
+```
+US-UI-1: 회원가입
+  As a 신규 사용자
+  I want to 웹에서 쉽게 계정을 만들고
+  So that Swagger UI 없이도 시스템에 가입할 수 있다
+
+US-UI-2: API 키 관리
+  As a 기존 사용자
+  I want to 웹에서 Binance API 키를 업데이트하고
+  So that 안전하게 거래소 연동을 관리할 수 있다
+
+US-UI-3: 성과 모니터링
+  As a 투자자
+  I want to 대시보드에서 내 트레이딩 성과를 시각적으로 확인하고
+  So that 빠르게 수익률과 리스크를 파악할 수 있다
+
+US-UI-4: 모바일 접근
+  As a 이동 중인 사용자
+  I want to 스마트폰에서도 대시보드에 접속하고
+  So that 언제 어디서나 포트폴리오를 확인할 수 있다
+```
+
+**Technical Stack**:
+```
+- Framework: Streamlit 1.30+
+- Charts: Altair (Vega-Lite)
+- API Client: requests + JWT
+- Theme: Dark mode (custom)
+- Deployment: Docker container
+- Port: 8501
+```
+
 ---
 
 ## 8. Cost Analysis
