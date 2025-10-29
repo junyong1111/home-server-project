@@ -8,7 +8,7 @@ import json
 
 st.set_page_config(
     page_title="AI 의사결정 - AXIS Capital",
-    page_icon="📈",
+    page_icon="▲",
     layout="wide"
 )
 
@@ -23,7 +23,7 @@ if not st.session_state.get("token"):
         st.switch_page("pages/2_로그인.py")
     st.stop()
 
-st.session_state.api_client.set_token(st.session_state.token)
+st.session_state.api_client.set_token(st.session_state.access_token)
 
 # 커스텀 CSS
 st.markdown("""
@@ -160,9 +160,9 @@ with tab2:
 
         # 레짐 표시
         regime_emoji = {
-            "Bull Trend": "📈",
-            "Bear Trend": "📉",
-            "Consolidation": "➡️"
+            "Bull Trend": "▲",
+            "Bear Trend": "▼",
+            "Consolidation": "─"
         }
 
         regime_color = {
@@ -175,7 +175,7 @@ with tab2:
 
         st.markdown(
             f"<h1 style='text-align: center; color: {regime_color.get(regime_text, '#FFFFFF')}'>"
-            f"{regime_emoji.get(regime_text, '📊')} {regime_text}</h1>",
+            f"{regime_emoji.get(regime_text, '●')} {regime_text}</h1>",
             unsafe_allow_html=True
         )
 
@@ -217,7 +217,7 @@ with tab2:
             history_data = history_result["data"]
 
             for regime in history_data:
-                regime_icon = regime_emoji.get(regime["regime"], "📊")
+                regime_icon = regime_emoji.get(regime["regime"], "●")
                 regime_name = regime["regime"]
                 confidence = float(regime["confidence"]) * 100
                 timestamp = datetime.fromisoformat(regime["created_at"].replace("Z", "+00:00")).strftime("%Y-%m-%d %H:%M")

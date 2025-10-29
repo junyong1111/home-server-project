@@ -8,7 +8,7 @@ from utils.api_client import APIClient
 # 페이지 설정
 st.set_page_config(
     page_title="AXIS Capital",
-    page_icon="📈",
+    page_icon="▲",
     layout="wide",
     initial_sidebar_state="expanded"
 )

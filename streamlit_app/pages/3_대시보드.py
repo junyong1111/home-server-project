@@ -10,7 +10,7 @@ import requests
 
 st.set_page_config(
     page_title="대시보드 - AXIS Capital",
-    page_icon="📈",
+    page_icon="▲",
     layout="wide"
 )
 
@@ -204,9 +204,9 @@ with ai_col1:
     if regime_result["success"]:
         regime_data = regime_result["data"]
         regime_emoji = {
-            "Bull Trend": "📈",
-            "Bear Trend": "📉",
-            "Consolidation": "➡️"
+            "Bull Trend": "▲",
+            "Bear Trend": "▼",
+            "Consolidation": "─"
         }
 
         regime_color = {
@@ -216,7 +216,7 @@ with ai_col1:
         }
 
         regime_text = regime_data["regime"]
-        st.markdown(f"### {regime_emoji.get(regime_text, '📊')} 현재 레짐: <span style='color:{regime_color.get(regime_text, '#FFFFFF')}'>{regime_text}</span>", unsafe_allow_html=True)
+        st.markdown(f"### {regime_emoji.get(regime_text, '●')} 현재 레짐: <span style='color:{regime_color.get(regime_text, '#FFFFFF')}'>{regime_text}</span>", unsafe_allow_html=True)
 
         regime_metric_col1, regime_metric_col2, regime_metric_col3 = st.columns(3)
         with regime_metric_col1:

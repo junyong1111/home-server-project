@@ -6,7 +6,7 @@ from utils.api_client import APIClient
 
 st.set_page_config(
     page_title="API 키 관리 - AXIS Capital",
-    page_icon="📈",
+    page_icon="▲",
     layout="wide"
 )
 
@@ -21,7 +21,7 @@ if not st.session_state.get("token"):
         st.switch_page("pages/2_로그인.py")
     st.stop()
 
-st.session_state.api_client.set_token(st.session_state.token)
+st.session_state.api_client.set_token(st.session_state.access_token)
 
 # 커스텀 CSS
 st.markdown("""
@@ -55,7 +55,7 @@ st.divider()
 # 업데이트 폼
 st.subheader("API 인증 정보 업데이트")
 
-st.warning("⚠️ API 키가 정확한지 확인하세요. 잘못된 키는 거래를 방해할 수 있습니다.")
+st.warning("API 키가 정확한지 확인하세요. 잘못된 키는 거래를 방해할 수 있습니다.")
 
 with st.form("update_api_keys_form"):
     new_api_key = st.text_input(

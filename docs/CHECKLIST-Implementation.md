@@ -636,24 +636,76 @@ curl http://localhost:8000/health
 ### Binance Futures API
 
 #### 기본 연동
-- [ ] **CCXT 설정**
-  - [ ] `services/binance.py` 생성
-  - [ ] API Key 암호화 모듈 (`core/security.py`)
-  - [ ] Binance 테스트넷 연결
-  - [ ] API 요청 성공 확인
+- [x] **CCXT 설정** ✅
+  - [x] `services/binance_service.py` 생성
+  - [x] API Key 암호화 모듈 (`core/security.py`)
+  - [x] Binance Futures 연결 (실제 운영)
+  - [x] API 요청 성공 확인
 
-- [ ] **Market Data APIs**
-  - [ ] OHLCV 조회 (`fetch_ohlcv`)
-  - [ ] Ticker 조회 (`fetch_ticker`)
+  **완료 보고**:
+  ```
+  ✅ 완료: Binance Futures API 연동
+  📝 내용:
+    - BinanceService 클래스 구현
+    - devjun 사용자 API 키 암호화 저장 및 복호화 성공
+    - Binance Futures 연결 (testnet=false)
+    - 거래소 정보 조회 성공 (ID: binance, 지원 타임프레임: 1m~1d)
+  🧪 테스트 결과 (test_api_keys.py):
+    - ✅ 거래소 정보 조회 (timeframes: 1m, 5m, 15m, 1h, 4h, 1d 등)
+    - ✅ BTC 현재가: $112,433.3 (-1.702%, 24h 거래량: 135,552 BTC)
+    - ✅ 잔고 조회: USDT/BTC 잔고 0 (에러 없음, -2015 에러 해결)
+  📂 파일:
+    - api/services/binance_service.py (278줄)
+    - api/test_api_keys.py (55줄)
+    - api/routers/trading.py (274줄)
+  ❓ 다음 단계: OHLCV 데이터 DB 저장
+  ```
+  **👤 Owner 승인 대기** ⏸️
+
+- [진행중] **Market Data APIs**
+  - [x] Ticker 조회 (`fetch_ticker`)
+  - [ ] OHLCV 조회 → DB 저장 (다음 단계)
   - [ ] Funding Rate 조회 (`fetch_funding_rate`)
   - [ ] Order Book 조회 (`fetch_order_book`)
   - [ ] 캐싱 로직 (Redis)
 
-- [ ] **Account APIs**
-  - [ ] 선물 계좌 잔고 조회
+- [진행중] **Account APIs**
+  - [x] 선물 계좌 잔고 조회
   - [ ] 오픈 포지션 조회
   - [ ] 미체결 주문 조회
   - [ ] 거래 내역 조회
+
+#### 자금 관리 (Wallet Transfer)
+- [진행중] **현물↔선물 자금 이체 시스템**
+  - [ ] Backend: BinanceService 메서드
+    - [ ] `get_spot_balance()` - 현물 잔고 조회
+    - [ ] `get_futures_balance()` - 선물 잔고 조회 (기존 리팩토링)
+    - [ ] `transfer_to_futures()` - 현물→선물 이체
+    - [ ] `transfer_to_spot()` - 선물→현물 이체
+  - [ ] Backend: FastAPI 엔드포인트
+    - [ ] `GET /trading/balances/all` - 통합 잔고 조회
+    - [ ] `POST /trading/transfer` - 이체 실행
+  - [ ] Backend: Pydantic 스키마
+    - [ ] `WalletBalances` - 잔고 응답
+    - [ ] `TransferRequest` - 이체 요청
+    - [ ] `TransferResponse` - 이체 결과
+  - [ ] Frontend: Streamlit API Client
+    - [ ] `get_all_balances()` - 잔고 조회
+    - [ ] `transfer_funds()` - 이체 실행
+  - [ ] Frontend: Streamlit UI (pages/6_자금관리.py)
+    - [ ] 현물/선물 잔고 카드 표시
+    - [ ] 이체 방향 선택 (현물↔선물)
+    - [ ] 이체 금액 입력 (실시간 검증)
+    - [ ] 미리보기 (수수료, 최소금액, 예상시간)
+    - [ ] 이체 실행 버튼 + 결과 표시
+
+  **예상 정보 표시**:
+  - 수수료: 무료 (내부 이체)
+  - 최소 금액: 0.01 USDT
+  - 예상 시간: 1-3초 (즉시)
+  - Rate Limit: 1분 5회
+
+  **완료 후 보고 대기** ⏸️
 
 #### 주문 실행
 - [ ] **Order Execution**

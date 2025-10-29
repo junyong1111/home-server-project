@@ -6,7 +6,7 @@ from utils.api_client import APIClient
 
 st.set_page_config(
     page_title="로그인 - AXIS Capital",
-    page_icon="📈",
+    page_icon="▲",
     layout="wide"
 )
 
@@ -28,7 +28,7 @@ st.caption("AXIS Capital 계정에 접속하세요")
 st.divider()
 
 # 이미 로그인한 경우
-if st.session_state.get("token"):
+if st.session_state.get("access_token"):
     st.success(f"**{st.session_state.user_info['username']}**님으로 이미 로그인되어 있습니다")
 
     col1, col2 = st.columns(2)
@@ -37,7 +37,7 @@ if st.session_state.get("token"):
             st.switch_page("pages/3_대시보드.py")
     with col2:
         if st.button("로그아웃", use_container_width=True):
-            st.session_state.token = None
+            st.session_state.access_token = None
             st.session_state.user_info = None
             st.session_state.api_client.set_token(None)
             st.rerun()
@@ -72,7 +72,7 @@ with st.form("login_form"):
 
             if result["success"]:
                 token_data = result["data"]
-                st.session_state.token = token_data["access_token"]
+                st.session_state.access_token = token_data["access_token"]
                 st.session_state.user_info = {
                     "user_id": token_data["user_id"],
                     "username": token_data["username"]

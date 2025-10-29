@@ -6,7 +6,7 @@ from utils.api_client import APIClient
 
 st.set_page_config(
     page_title="회원가입 - AXIS Capital",
-    page_icon="📈",
+    page_icon="▲",
     layout="wide"
 )
 

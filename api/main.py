@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from core.config import settings
 from core.database import Base, engine, check_database_connection
 from core.redis_client import check_redis_connection
-from routers import auth, users, ai_decisions, market_data
+from routers import auth, users, ai_decisions, market_data, trading
 
 
 # ===== FastAPI App =====
@@ -37,6 +37,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(ai_decisions.router)
 app.include_router(market_data.router)
+app.include_router(trading.router)
 
 
 # ===== Startup Event =====

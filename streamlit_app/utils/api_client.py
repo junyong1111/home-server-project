@@ -339,3 +339,62 @@ class APIClient:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
+    # =============================================
+    # Wallet Transfer Methods
+    # =============================================
+
+    def get_all_balances(self, token: str) -> Dict[str, Any]:
+        """
+        현물/선물 통합 잔고 조회
+
+        Args:
+            token: JWT 토큰
+
+        Returns:
+            dict: 성공 시 잔고 정보, 실패 시 에러
+        """
+        try:
+            response = requests.get(
+                f"{self.base_url}/api/v1/trading/balances/all",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=15
+            )
+            response.raise_for_status()
+            return {"success": True, "data": response.json()}
+        except requests.exceptions.HTTPError as e:
+            return {"success": False, "error": e.response.json().get("detail", str(e))}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def transfer_funds(self, token: str, asset: str, amount: float,
+                       direction: str) -> Dict[str, Any]:
+        """
+        현물 ↔ 선물 자금 이체
+
+        Args:
+            token: JWT 토큰
+            asset: 자산 코드 (USDT, BTC 등)
+            amount: 이체 금액
+            direction: 'spot_to_futures' 또는 'futures_to_spot'
+
+        Returns:
+            dict: 성공 시 이체 결과, 실패 시 에러
+        """
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/v1/trading/transfer",
+                headers={"Authorization": f"Bearer {token}"},
+                json={
+                    "asset": asset,
+                    "amount": amount,
+                    "direction": direction
+                },
+                timeout=15
+            )
+            response.raise_for_status()
+            return {"success": True, "data": response.json()}
+        except requests.exceptions.HTTPError as e:
+            return {"success": False, "error": e.response.json().get("detail", str(e))}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
