@@ -9,7 +9,11 @@ from typing import Optional, Dict, Any
 class APIClient:
     """FastAPI 백엔드 API 클라이언트"""
 
-    def __init__(self, base_url: str = "http://localhost:8001"):
+    def __init__(self, base_url: str = None):
+        # Docker 환경에서는 서비스 이름 사용, 로컬에서는 localhost 사용
+        if base_url is None:
+            import os
+            base_url = os.getenv("FASTAPI_URL", "http://fastapi:8000")
         self.base_url = base_url
         self.token: Optional[str] = None
 
